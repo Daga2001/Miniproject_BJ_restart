@@ -41,7 +41,7 @@ public class PanelJugador extends JPanel {
 	    	x+=27;
 	    }
 		add(manoJugador.get(0));
-	   // System.out.println(manoJugador.get(0).getValor());
+		//System.out.println(manoJugador.get(0).getValor());
 		//System.out.println(manoJugador.get(1).getValor());
 	    repaint();
 	}

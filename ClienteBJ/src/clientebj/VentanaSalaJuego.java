@@ -222,7 +222,7 @@ public class VentanaSalaJuego extends JInternalFrame {
 		public void partidaTerminada(DatosBlackJack datos) {
 			System.out.println("Yes");
 			if(datos.getEstadoJuego() == true) {
-				//Dealer ganó (ambos jugadores perdieron); Dealer empató (ambos jugadores empataron); Delaer perdió (Ambos jugvadores ganaron)
+				//Dealer ganó (ambos jugadores perdieron); Dealer empató (ambos jugadores empataron); Dealer perdió (Ambos jugvadores ganaron)
 				if(datos.getJugador().contentEquals(yoId)) {
 					if(datos.getValorManos()[2] > datos.getValorManos()[0] && datos.getValorManos()[0] < 21) {
 						int option = JOptionPane.showConfirmDialog(null, "Has perdido, tu apuesta será tomada. ¿Otra ronda?" , "Fin partida", 

@@ -43,7 +43,7 @@ public class ServidorBJ implements Runnable{
 	//variables de control del juego
 	private String[] idJugadores, apuestaJugadores;
 	private int jugadorEnTurno;
-	private boolean terminoJuego, terminoRonda;
+	private volatile boolean terminoJuego, terminoRonda, botonUndido;
 	private Baraja mazo;
 	private ArrayList<ArrayList<Carta>> manosJugadores;
 	private ArrayList<Carta> manoJugador1;
@@ -84,6 +84,7 @@ public class ServidorBJ implements Runnable{
 		idJugadores = new String[LONGITUD_COLA];
 		valorManos = new int[LONGITUD_COLA+1];
 		apuestaJugadores = new String[LONGITUD_COLA];
+		this.botonUndido = false;
 		
 		terminoJuego = false;
 		
@@ -138,13 +139,14 @@ public class ServidorBJ implements Runnable{
 	
 	//Dar nuevos valores a los mazos.------------------------------------------------------------
 	public void reiniciar() {
+		mostrarMensaje("Se reinició el juego");
 		terminoJuego = false;
 		
 		Carta carta;
-		manoJugador1.clear();
-		manoJugador2.clear();
-		manoDealer.clear();
-		manosJugadores.clear();
+		manoJugador1 = new ArrayList<Carta>();
+		manoJugador2 = new ArrayList<Carta>();
+		manoDealer = new ArrayList<Carta>();
+		manosJugadores = new ArrayList<ArrayList<Carta>>();
 		mazo = new Baraja();
 		valorManos[0] = 0;
 		valorManos[1] = 0;
@@ -163,6 +165,7 @@ public class ServidorBJ implements Runnable{
 		carta = mazo.getCarta();
 		manoDealer.add(carta);
 		calcularValorMano(carta,2);
+		
 		//gestiona las tres manos en un solo objeto para facilitar el manejo del hilo
 		manosJugadores.add(manoJugador1);
 		manosJugadores.add(manoJugador2);
@@ -218,11 +221,12 @@ public class ServidorBJ implements Runnable{
     private void analizarMensaje(String entrada, int indexJugador) {
 		// TODO Auto-generated method stub
         //garantizar que solo se analice la petición del jugador en turno.
-    	if(entrada.equals("reiniciar")) {
+    	if(entrada.equals("reiniciar") && !botonUndido) {
     		//---------------------------------------------------------------------------------
     		//Utiliza reiniciar y le envia al cliente (0) los nuevos valores, este mensaje lo lee al dar reiniciar en la vista
     		//Actualizar barajas jugadores.
     		reiniciar();
+    		botonUndido = true;
     		datosEnviar = new DatosBlackJack();
     		datosEnviar.setJugador(idJugadores[0]);
 			datosEnviar.setManoDealer(manoDealer);
@@ -246,6 +250,7 @@ public class ServidorBJ implements Runnable{
 				jugadorEnTurno = 0;
 			}finally {
 				bloqueoJuego.unlock();
+				botonUndido = false;
 			}
     		
     	}
@@ -579,6 +584,7 @@ public class ServidorBJ implements Runnable{
 		
 		public void enviarMensajeCliente(Object mensaje) {
 			try {  
+				mostrarMensaje("Se mandó mensaje al cliente "+ mensaje);
 				out.writeObject(mensaje);
 				out.flush();
 			} catch (IOException e) {
